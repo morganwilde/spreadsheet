@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <stdlib.H>
+#include <stdlib.h>
 #include <string.h>
 #include <limits.h>
 #ifndef UTILS_H
