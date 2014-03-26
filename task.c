@@ -97,8 +97,14 @@ int main(int argc, char **argv) {
 				targetCell = &(grid.cells[grid.columns * y + x]);
 				formulaCell->refCells++;
 				formulaCell->refs = realloc(formulaCell->refs, sizeof(Cell) * formulaCell->refCells);
+				formulaCell->refs[formulaCell->refCells] = *targetCell;
+				// Fill the formula cell with content from target
+    			gridChangePosition(&grid, formulaCell->column, formulaCell->row);
+				char buf[10];
+				sprintf(buf, "%d", targetCell->value);
+				printf("%s", buf);
+
 				// Return home
-    			gridChangePosition(&grid, formulaCell->row, formulaCell->column);
 				formulaCell = NULL;
 				break;
             default:
