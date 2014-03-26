@@ -25,6 +25,9 @@ typedef struct Cell {
     int     row;
     int     value;
     char    contents[CELL_HEIGHT][CELL_WIDTH+1];
+	// Keep track of all the references to this cell
+	int		refCells;
+	struct Cell *refs;
 } Cell;
 
 typedef struct Grid {
@@ -38,6 +41,7 @@ typedef struct Grid {
     // Cells
     Cell    *cells;
 } Grid;
+
 
 Canvas canvasInit(Env terminal);
 Cell cellInit(int column, int row, int value);

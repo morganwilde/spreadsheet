@@ -31,9 +31,12 @@ int main(int argc, char **argv) {
         grid = gridInitMax(canvas);
 
     gridDraw(&grid);
+	gridHeadersDraw(&grid);
 
     char command = getChar();
-    Cell *activeCell = NULL;
+    Cell *activeCell 	= NULL,
+		 *formulaCell 	= NULL,
+		 *targetCell 	= NULL;
 
     while (command != ':') {
         // UI for navigating between cells
@@ -63,24 +66,48 @@ int main(int argc, char **argv) {
             // Enter - new line
             case '\n':
                 // Start reading input
-                if (!activeCell) {
+                if (!activeCell && !formulaCell) {
                     activeCell = &(grid.cells[grid.position]);
                     cellReadValue(&activeCell, &grid);
-                    //printf("grid(%d, %d)\n", grid.x, grid.y);
                 } else {
                     activeCell = NULL;
                 }
                 break;
+			case '=':
+				formulaCell = &(grid.cells[grid.position]);
+				// Start reading references to other functions
+				printf("=");
+				int row = 1;
+				readInt(&row, 0, grid.rows-3);
+				char col = 'A';
+				col = getChar();
+				char namesC[][3] = {"A", "B", "C", "D",
+									"E", "F", "G", "H",
+									"I", "J", "K", "L",
+									"M", "N", "R", "P"};
+				while (col < 'A' || col > namesC[grid.columns-1][0]) {
+					col = getChar();
+				}
+				printf("%c", col);
+				fflush(stdout);
+				// Find the cell the user entered
+				int x = (int)(col - 'A'),
+					y = row;
+
+				targetCell = &(grid.cells[grid.columns * y + x]);
+				formulaCell->refCells++;
+				formulaCell->refs = realloc(formulaCell->refs, sizeof(Cell) * formulaCell->refCells);
+				// Return home
+    			gridChangePosition(&grid, formulaCell->row, formulaCell->column);
+				formulaCell = NULL;
+				break;
             default:
                 break;
-                //continue;
-                //printf("%d\n", command);
         }
         command = getChar();
     }
 
-    // TODO UI for navigating between the cells
-    // TODO Number input
+    // TODO UI for reading a function
     // TODO calculations
 
     return 0;

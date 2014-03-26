@@ -1,5 +1,14 @@
 #include "grid.h"
 
+char namesR[][3] = {"0", "1", "2", "3",
+					"4", "5", "6", "7",
+					"8", "9", "10", "11",
+					"12", "13", "14", "15"};
+char namesC[][3] = {"A", "B", "C", "D",
+					"E", "F", "G", "H",
+					"I", "J", "K", "L",
+					"M", "N", "R", "P"};
+
 Canvas canvasInit(Env terminal) {
     Canvas c;
     c.t = terminal;
@@ -31,6 +40,10 @@ Cell cellInit(int column, int row, int value) {
     c.column = column;
     c.row = row;
     c.value = value;
+
+	// Save space for all the references to this cell
+	c.refCells = 0;
+	c.refs = malloc(c.refCells * sizeof(Cell));
 
     // Draw the cell
     int left    = column * CELL_WIDTH,
@@ -110,8 +123,8 @@ Grid gridInit(Canvas canvas, int limit) {
     grid.cells = malloc(limit * sizeof(Cell));
 
     int i, j;
-    for (i = 0; i < grid.rows; i++) {
-        for (j = 0; j < grid.columns; j++) {
+    for (i = 1; i < grid.rows; i++) {
+        for (j = 1; j < grid.columns; j++) {
             if ((i+1)*(j+1) <= limit) {
                 grid.cells[i*grid.columns + j] = cellInit(j, i, 0);
             } else {
@@ -136,10 +149,10 @@ Grid gridInitMax(Canvas canvas) {
 
 void gridChangePosition(Grid *grid, int x, int y) {
     // Check for bounds
-    if (x >= 0 && x < grid->columns) {
+    if (x >= 1 && x < grid->columns) {
         grid->x = x;
     }
-    if (y >= 0 && y < (grid->rows-1)) {
+    if (y >= 1 && y < (grid->rows-1)) {
         grid->y = y;
     }
     grid->position = grid->columns * grid->y + grid->x;
@@ -162,5 +175,21 @@ void gridDraw(Grid *grid) {
             break;
         }
     }
-    gridChangePosition(grid, 0, 0);
+    gridChangePosition(grid, 1, 1);
+}
+
+void gridHeadersDraw(Grid *grid) {
+	int i;
+	// Column headers
+	for (i = 1; i < grid->columns; i++) {
+    	printf("\x1B[%d;%dH", 2, i*(CELL_WIDTH-1)+(CELL_WIDTH/2)+1);
+		printf("%s", namesC[i-1]);
+	}
+	// Row headers
+	for (i = 2; i < grid->rows; i++) {
+    	printf("\x1B[%d;%dH", i*(CELL_HEIGHT-1), (CELL_WIDTH/2)+1);
+		printf("%s", namesR[i-2]);
+	}
+    gridChangePosition(grid, 1, 1);
+	fflush(stdout);
 }
